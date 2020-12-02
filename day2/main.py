@@ -12,6 +12,8 @@ class PasswordParser:
         nbr = self.password.count(self.letter)
         return self.min_ <= nbr <= self.max_
     
+    def has_valid_position(self):
+        return (self.password[self.min_ - 1] == self.letter) ^ (self.password[self.max_ - 1] == self.letter)
 
 # Pattern is min-max caractere: password
 def parse_line(line: str):
@@ -29,5 +31,11 @@ def main1():
     count = sum(1 for x in lines if x.is_valid())
     print(f"{count} passwords are valid")
 
+def main2():
+    lines = read_file()
+    count = sum(1 for x in lines if x.has_valid_position())
+    print(f"{count} passwords are valid")
+
+
 if __name__ == "__main__":
-    main1()
+    main2()

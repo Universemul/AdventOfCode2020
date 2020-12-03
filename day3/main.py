@@ -24,14 +24,25 @@ def read_file():
         data = [line.rstrip() for line in f]
         return data
 
-def main1():
-    context = ContextFile(read_file())
+def count_tree(context: ContextFile):
     tree_count = 0
     while context.can_move():
         if context.is_a_tree():
             tree_count += 1
         context.compute_next_coord()
-    print(tree_count)
+    return tree_count
 
+def main1():
+    context = ContextFile(read_file())
+    print(count_tree(context))
+
+def main2():
+    tree_count = 1
+    for (s_x, s_y) in [(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)]:
+        context = ContextFile(read_file(), s_x, s_y)
+        tree_count *= count_tree(context)
+    print(tree_count)
+    
 if __name__ == "__main__":
     main1()
+    main2()

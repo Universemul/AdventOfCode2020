@@ -38,7 +38,7 @@ def usage():
 def main():
     day = current_day()
     year = current_year()
-    create_context(URL.format(day=day, year=year), 4)
+    create_context(URL.format(day=day, year=year), day)
 
 if __name__ == "__main__":
     main()

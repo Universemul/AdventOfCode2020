@@ -12,6 +12,7 @@ fn read_file(filepath: &str) -> HashSet<u32> {
     HashSet::from_iter(lines.iter().cloned())
 }
 
+// Only part 1. Part 2 is just algorithm
 fn main() {
     let lines = read_file("input.txt");
     for line in lines.iter() {

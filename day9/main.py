@@ -5,20 +5,33 @@ def read_file(filename, func=None):
 
 PREAMBLE = 25
 
-def main1():
-    lines = list(read_file('input.txt', lambda x: int(x)))
+def get_lines():
+    return list(read_file('input.txt', lambda x: int(x)))
+
+def main1(lines):
     data = lines[PREAMBLE:]
     for idx, number in enumerate(data):
         base = lines[idx:idx+PREAMBLE]
         tmp = [number - x for x in base]
         if not any(x for x in tmp if x in base):
-            print(number)
-            break
+            return number
 
 
-def main2():
-    lines = read_file('input.txt')
-    
+def main2(lines):
+    number = main1(lines)
+    idx = 0
+    while idx < len(lines):
+        numbers = []
+        j = idx
+        while (sum(numbers) < number):
+            numbers.append(lines[j])
+            j += 1
+        idx += 1
+        if sum(numbers) == number:
+            print(min(numbers) + max(numbers))
+            return
+
 if __name__ == "__main__":
-    main1()
-    main2()
+    lines = get_lines()
+    print(main1(lines))
+    main2(lines)

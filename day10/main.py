@@ -12,18 +12,17 @@ def add_into_diff(rating, differences):
 def get_diff(rating, target, data, differences):
     sources = [rating + i for i in range(1, 4)]
     for x in sources:
-        if x in data:
-            diff = x - rating
-            rating = x
-            if rating + 3 == target:
-                add_into_diff(3, differences)
-            add_into_diff(diff, differences)
-            data.remove(rating)
-            get_diff(rating, target, data, differences)
+        if x not in data:
+            continue
+        diff = x - rating
+        add_into_diff(diff, differences)
+        data.remove(x)
+        get_diff(x, target, data, differences)
 
 def main1():
     lines = list(read_file('input.txt', int))
     target = max(lines) + 3
+    lines.append(target)
     differences = dict()
     get_diff(0, target, lines, differences)
     print(differences.get(1, 1) * differences.get(3, 1))

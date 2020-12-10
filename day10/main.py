@@ -3,6 +3,10 @@ def read_file(filename, func=None):
         for line in f:
             yield func(line.strip()) if func else line.strip()
 
+def add_into_diff(rating, differences):
+    differences.setdefault(rating, 0)
+    differences[rating] += 1
+    
 def get_diff(rating, target, data, differences):
     sources = [rating + i for i in range(1, 4)]
     for x in sources:
@@ -10,10 +14,8 @@ def get_diff(rating, target, data, differences):
             diff = x - rating
             rating = x
             if rating + 3 == target:
-                differences.setdefault(3, 0)
-                differences[3] += 1
-            differences.setdefault(diff, 0)
-            differences[diff] += 1
+                add_into_diff(3, differences)
+            add_into_diff(diff, differences)
             data.remove(rating)
             get_diff(rating, target, data, differences)
 
@@ -22,7 +24,6 @@ def main1():
     target = max(lines) + 3
     differences = dict()
     get_diff(0, target, lines, differences)
-    print(differences)
     print(differences.get(1, 1) * differences.get(3, 1))
 
 def main2():

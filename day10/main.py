@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 def read_file(filename, func=None):
     with open(filename, 'r') as f:
         for line in f:
@@ -26,9 +28,19 @@ def main1():
     get_diff(0, target, lines, differences)
     print(differences.get(1, 1) * differences.get(3, 1))
 
+@lru_cache
+def get_count_adapters(rating, target, data):
+    if rating + 3 == target:
+        return 1
+    sources = [rating + i for i in range(1, 4) if rating + i in data]
+    return sum(get_count_adapters(x, target, data) for x in sources)
+
 def main2():
-    lines = read_file('input.txt')
-    
+    lines = tuple(read_file('input.txt', int))
+    target = max(lines) + 3
+    count = get_count_adapters(0, target, lines) 
+    print(count)
+
 if __name__ == "__main__":
     main1()
     main2()

@@ -9,6 +9,7 @@ URL = "https://adventofcode.com/{year}/day/{day}/input"
 PWD = os.getcwd()
 COOKIE_SESSION=os.getenv("AOC_SESSION") # See https://github.com/wimglenn/advent-of-code-data/tree/ed7cd3ff807228d5e78abbde02276231182ce986
 TEMPLATE=f"{PWD}/templates/main.py"
+TEMPLATE_PERF=f"{PWD}/templates/perf.py"
 
 
 def current_day():
@@ -29,6 +30,18 @@ def create_context(url: str, day_number: int):
         f.write(r.content)
     if os.path.exists(TEMPLATE): #Copy template in directory
         shutil.copyfile(TEMPLATE, f"{directory}/main.py") 
+    if os.path.exists(TEMPLATE_PERF): #Copy template in directory
+        shutil.copyfile(TEMPLATE_PERF, f"{directory}/perf.py") 
+
+
+def usage():
+    print('start.py {day number}')
+    exit(1)
+
+def main():
+    day = current_day()
+    year = current_year()
+    create_context(URL.format(day=day, year=year), day)
 
 
 def usage():

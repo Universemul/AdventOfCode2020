@@ -5,14 +5,6 @@ def read_file(filename, func=None):
         for line in f:
             yield func(line.strip()) if func else line.strip()
 
-COEF = {'N': 1, 'E': 1, 'S': -1, 'W': -1, 'R': 1, 'L': -1}
-
-class Direction(Enum):
-    NORTH = 'N'
-    SOUTH = 'S'
-    EAST = 'E'
-    WEST = 'W'
-
     @staticmethod
     def turn(direction, value, current_direction):
         _v = int(value / 90)
@@ -20,42 +12,35 @@ class Direction(Enum):
         return _d[(_d.index(current_direction) + (_v * COEF[direction])) % 4]
 
 class Ship:
-    DIRECTIONS = ['N', 'S', 'E', 'W']
+    
+    CARDINALS = {'N': (0, 1), 'S': (0, -1), 'E': (1, 1), 'W': (1, -1)}
+    DIRECTIONS = ['N', 'E', 'S', 'W']
 
-    def __init__(self, direction):
-        self.current_direction = direction
-        self.values = {x: 0 for x in ['N', 'E']}
+    def __init__(self):
+        self.direction = 'E'
+        self.values = [0, 0] # North, East
     
     def _get_mapping(self, direction):
-        if direction == 'S':
-            return 'N'
-        if direction == 'W':
-            return 'E'
-        return direction
-    
-    def compute_new_value(self, direction, value, current_direction):
-        return self.values[direction] + (value * COEF[current_direction])
+        return self.CARDINALS[direction]
 
-    def move_forward(self, value):
-        new_dir = self._get_mapping(self.current_direction)
-        new_v = self.compute_new_value(new_dir, value, self.current_direction)
-        self.values[new_dir] = new_v
+    def compute_new_value(self, direction, value):
+        idx, coef = self._get_mapping(direction)
+        self.values[idx] += (value * coef)
 
     def move(self, direction, value):
+        _direction = direction
         if direction == 'F':
-            self.move_forward(value)
-            return
-        _d = self._get_mapping(direction)
-        new_v = self.compute_new_value(_d, value, direction)
-        self.values[_d] = new_v
+            _direction = self.direction
+        self.compute_new_value(_direction, value)
 
     def turn(self, direction, value):
-        self.current_direction = Direction.turn(direction, value, self.current_direction)
+        coef = -1 if direction == 'L' else 1
+        _v = int(value / 90) * coef
+        self.direction = self.DIRECTIONS[(self.DIRECTIONS.index(self.direction) + _v) % 4]
 
 def main1():
     lines = read_file('input.txt')
-    ship = Ship('E')
-    idx = 0
+    ship = Ship()
     for l in lines:
         operator = l[0]
         number = int(l[1:])
@@ -63,11 +48,53 @@ def main1():
             ship.move(operator, number)
         else:
             ship.turn(operator, number)
-    print(abs(ship.values['N']) + abs(ship.values['E']))
+    print(abs(ship.values[0]) + abs(ship.values[1]))
+
+"""
+-------- PART 2 --------
+"""
+
+def turn_waypoint(waypoint, operator, value):
+    clockwise = value
+    if operator == 'L':
+        clockwise = 360 - value
+    waypoint = {
+        90: [-waypoint[1], waypoint[0]],
+        180: [-waypoint[0], -waypoint[1]],
+        270: [waypoint[1], -waypoint[0]]
+    }[clockwise]
+    return waypoint
+
+def move_ship(waypoint, ship, value):
+    ship[0] = ship[0] + (value * waypoint[0])
+    ship[1] = ship[1] + (value * waypoint[1])
+    return ship
+
+def move_waypoint(waypoint, operator, value):
+    coef, position = {
+        'N': (1, 0), # coef,position in waypoint
+        'S': (-1, 0),
+        'E': (1, 1),
+        'W': (-1, 1)
+    }[operator]
+    waypoint[position] += value * coef
+    return waypoint
 
 def main2():
     lines = read_file('input.txt')
-    
+    waypoint = [1, 10] # (North/Sud East/West
+    ship = [0, 0]
+    for l in lines:
+        operator = l[0]
+        number = int(l[1:])
+        if operator == "F":
+            ship = move_ship(waypoint, ship, number)
+        elif operator in ['N', 'S', 'E', 'W']:
+            waypoint = move_waypoint(waypoint, operator, number)
+        else:
+            waypoint = turn_waypoint(waypoint, operator, number)
+    print(abs(ship[0]) + abs(ship[1]))
+
 if __name__ == "__main__":
     main1()
-    #main2()
+    main2()

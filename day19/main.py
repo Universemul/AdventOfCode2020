@@ -26,20 +26,25 @@ def read_file(filename, func=None):
             result.append(func(line.strip()) if func else line.strip())
     return result
 
-def make_regex(rules, key):
+def make_regex(rules, key, max_depth):
     t = []
     for rule in rules[key]:
         tmp = []
         for number in rule:
             if number.isdigit():
-                tmp.append(make_regex(rules, number))
+                if max_depth is None:
+                    tmp.append(make_regex(rules, number, max_depth))
+                else:
+                    if number == key:
+                        max_depth -= 1
+                    if max_depth >= 0:
+                        tmp.append(make_regex(rules, number, max_depth))
             else: # We find a rule like this : "a"
                 tmp.append(number[1])
         t.append(''.join(tmp))
     return f"(?:{'|'.join(t)})"
 
-def main1():
-    lines = read_file(INPUT_FILE)
+def main(lines, max_depth):
     cache = dict()
     messages = []
     populate_messages = False
@@ -53,12 +58,24 @@ def main1():
             key, values = l.split(':')
             cache[key] = compute_inner_rules(values.strip())
         
-    regex = make_regex(cache, '0')
+    regex = make_regex(cache, '0', max_depth)
     print(sum(1 for x in messages if re.fullmatch(regex, x)))
+
+def main1():
+    lines = read_file(INPUT_FILE)
+    main(lines, None)
 
 def main2():
     lines = read_file(INPUT_FILE)
-    
+    for idx, x in enumerate(lines):
+        if x == "8: 42":
+            lines[idx] = "8: 42 | 42 8"
+        elif x == "11: 42 31":
+            lines[idx] = "11: 42 31 | 42 11 31"
+    # Set max recursion because we can enter into a loop
+    main(lines, 10) 
+
+
 if __name__ == "__main__":
     main1()
     main2()

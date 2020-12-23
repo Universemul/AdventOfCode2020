@@ -14,6 +14,7 @@ def read_file(filename, func=None):
         for line in f:
             result.append(func(line.strip()) if func else line.strip())
     return result
+
 class Game:
     def __init__(self, cups):
         self.cups = cups
